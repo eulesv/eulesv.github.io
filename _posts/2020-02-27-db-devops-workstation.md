@@ -15,7 +15,7 @@ Uno de mis objetivos a la hora de crear esta guía es hacerla de forma que pueda
 
 Aunque suene confuso, el primer elemento de esta guía no es un componente de la estación de trabajo, lo primero que necesitamos es una plataforma desde donde vamos a orquestar todos los componentes y actividades, la plataforma puede ser integrada o estar conformada por múltiples productos, pero como mínimo debe permitirnos **administrar una base centralizada de código fuente y automatizar los procesos de validación y liberación**.
 
-Mi elección acá no es ninguna sorpresa [Azure DevOps Services](https://dev.azure.com/), un servicio diseñado para dar soporte a soluciones de principio a fin, se integra con múltiples tecnologías en múltiples plataformas, puede trabajar con esquemas on-premise, con múltiples proveedores de nube, etc., la lista es larga; si no lo han utilizado antes pueden darle una oportunidad, organizaciones de 5 o menos desarrolladores con stakeholders ilimitados son gratuitas.
+Mi elección acá no es ninguna sorpresa [Azure DevOps Services](https://dev.azure.com/){:target="_blank"}, un servicio diseñado para dar soporte a soluciones de principio a fin, se integra con múltiples tecnologías en múltiples plataformas, puede trabajar con esquemas on-premise, con múltiples proveedores de nube, etc., la lista es larga; si no lo han utilizado antes pueden darle una oportunidad, organizaciones de 5 o menos desarrolladores con stakeholders ilimitados son gratuitas.
 
 Si ya cuentan con una organización el único paso a realizar es crear un nuevo *Team Project*:
 
@@ -27,7 +27,7 @@ Una vez que el *Team Project* ha sido creado, es hora de inicializar el reposito
 
 **Control de Versiones**
 
-Este es un componente que ya está presente en la mayoría de las empresas, en mis últimos años en mi vida profesional, he visto muy pocos casos donde no se tiene un sistema de control de versiones implementado. Las opciones son muchas y cada persona tiene su  favorito, en este caso yo he decidido utilizar [Git](https://git-scm.com/).
+Este es un componente que ya está presente en la mayoría de las empresas, en mis últimos años en mi vida profesional, he visto muy pocos casos donde no se tiene un sistema de control de versiones implementado. Las opciones son muchas y cada persona tiene su  favorito, en este caso yo he decidido utilizar [Git](https://git-scm.com/){:target="_blank"}.
 
 Las ventajas de *Git* son conocidas y no vale la pena discutirlas acá, pueden encontrar múltiples páginas en Internet describiendo las características y bondades de este sistema de control de versiones. Si deseas seguir esta guía usando otro sistema (por ejemplo, *SVN*) no hay ningún problema, siempre y cuando se decidan por un sistema de control de versiones moderno que pueda servir dentro de un esquema de integración continua todo va a funcionar.
 
@@ -45,7 +45,7 @@ git clone https://robep@dev.azure.com/robep/DB%20DevOps%20E2E/_git/DB%20DevOps%2
 
 Esta es otra área donde cada persona tiene un favorito y puede existir mucho debate sobre cual es mejor y el motivo por el cual es mejor. Elijan el entorno de desarrollo con que se sientan más cómodos, asegúrense de poder personalizarlo de acuerdo a sus necesidades y hacer que haga sus tareas de desarrollo lo más fáciles posible.
 
-Mi elección en esta categoría es [code](https://code.visualstudio.com). Si aún no lo conocen échenle un vistazo, probablemente les sorprenderá y entenderán porqué tantas personas lo están utilizando. Como mencioné antes, cada persona tiene su editor o IDE favorito, trabajen con el mejor se acople a sus necesidades. Personalmente, mi elección se basa en las siguientes características:
+Mi elección en esta categoría es [code](https://code.visualstudio.com){:target="_blank"}. Si aún no lo conocen échenle un vistazo, probablemente les sorprenderá y entenderán porqué tantas personas lo están utilizando. Como mencioné antes, cada persona tiene su editor o IDE favorito, trabajen con el mejor se acople a sus necesidades. Personalmente, mi elección se basa en las siguientes características:
 - Integración con *Git*
 - Integración con *Azure DevOps*
 - Extensiones para administrar *SQL Server*
@@ -55,7 +55,7 @@ Mi elección en esta categoría es [code](https://code.visualstudio.com). Si aú
 - Extensibilidad para añadir múltiples lenguajes
 - Sintaxis coloreada y auto complemento de código (contextual)
 
-Finalmente, es multiplataforma y puedo trabajar en un ambiente con el cual estoy familiarizado no importando donde me encuentre, podría ser en mi laptop basada en *Windows*, una máquina virtual en *Azure* o incluso en mi [Raspberry Pi]({% post_url 2020-02-25-vscode-ssh-rpi %}).
+Finalmente, es multiplataforma y puedo trabajar en un ambiente con el cual estoy familiarizado no importando donde me encuentre, podría ser en mi laptop basada en *Windows*, una máquina virtual en *Azure* o incluso en mi [Raspberry Pi]({% post_url 2020-02-25-vscode-ssh-rpi %}){:target="_blank"}.
 
 Si desean saber cuáles son las extensiones que utilicé para implementar esta guía les dejo el listado de los id a continuación (sin ningún orden en particular), pueden buscarlas en el marketplace o pueden instalarlas directamente desde la línea de comandos con ``code --install-extension id``
 
@@ -76,13 +76,13 @@ Si desean saber cuáles son las extensiones que utilicé para implementar esta g
 
 Ahora bien, *code* realmente sólo es un editor de texto con características avanzadas, para completar mi entorno de desarrollo debo combinarlo con otras tecnologías tanto para desarrollo como para scripting, mis opciones en estas áreas son:
 
-**Desarrollo** -> [Netcore](https://dotnet.microsoft.com/download)  
+**Desarrollo** -> [Netcore](https://dotnet.microsoft.com/download){:target="_blank"}  
 Una tecnología multiplataforma que me permitirá escribir las pruebas unitarias. Una vez más esta elección está basada en mi experiencia, *java* también es una opción viable si se sienten más cómodos con esa tecnología.
 
-**Scripting** -> [Powershell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7)  
+**Scripting** -> [Powershell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7){:target="_blank"}  
 Nuevamente una tecnología multiplataforma que me permite programar acciones rápidamente y pueden ser ejecutadas directamente desde el sistema de archivos, al igual que el caso anterior, perfectamente podría ser reemplazada por otra tecnología.
 
-En este momento quizás se estén preguntando: Por qué no simplemente *Visual Studio*? Después de todo, *Visual Studio* contiene de forma integrada todos los componentes que estoy enumerando para un ambiente de desarrollo... lo cierto es que *Visual Studio* hubiera sido mi primera opción, con más de 20 años utilizándolo es la realmente la elección más natural y lógica, sin embargo, el objetivo de esta guía es que funcione para la mayoría de las personas, si por ejemplo me baso en el esquema de [bacpacs](https://docs.microsoft.com/en-us/sql/relational-databases/data-tier-applications/data-tier-applications?view=sql-server-ver15) esta guía aplicaría sólo a *SQL Server*, si utilizo *Visual Studio*, esta guía no podría ser utilizada por personas que trabajan en *MacOs* o en *Linux*.
+En este momento quizás se estén preguntando: Por qué no simplemente *Visual Studio*? Después de todo, *Visual Studio* contiene de forma integrada todos los componentes que estoy enumerando para un ambiente de desarrollo... lo cierto es que *Visual Studio* hubiera sido mi primera opción, con más de 20 años utilizándolo es la realmente la elección más natural y lógica, sin embargo, el objetivo de esta guía es que funcione para la mayoría de las personas, si por ejemplo me baso en el esquema de [bacpacs](https://docs.microsoft.com/en-us/sql/relational-databases/data-tier-applications/data-tier-applications?view=sql-server-ver15){:target="_blank"} esta guía aplicaría sólo a *SQL Server*, si utilizo *Visual Studio*, esta guía no podría ser utilizada por personas que trabajan en *MacOs* o en *Linux*.
 
 **Servidor de Desarrollo**
 
@@ -104,9 +104,9 @@ Para mi esquema voy a utilizar *Microsoft SQL Server* simplemente porque tengo e
 - El contenedor puede potencialmente ser un riesgo de seguridad, pero ya no es una máquina dentro del dominio y los únicos accesos son aquellos que explícitamente le son atribuidos, es un ambiente aislado que lo hace más difícil de ser explotado, adicionalmente no siempre está encendido y si llegase a comprometerse, simplemente puede destruirse y se crea uno nuevo en un par de minutos.
 - *Docker* fue diseñado con un uso eficiente de recursos en mente, adicionalmente, es posible iniciar o detener los contenedores en cuestión de segundos permitiendo únicamente consumir los recursos cuando estamos realmente utilizándolos.
 
-Lo primero que necesitamos es instalar [Docker](https://www.docker.com/) dado que mi estación de trabajo está basada en *Windows* y no utilizo un sistema operativo de servidor utilizaré [Docker Desktop](https://www.docker.com/products/docker-desktop)
+Lo primero que necesitamos es instalar [Docker](https://www.docker.com/){:target="_blank"} dado que mi estación de trabajo está basada en *Windows* y no utilizo un sistema operativo de servidor utilizaré [Docker Desktop](https://www.docker.com/products/docker-desktop){:target="_blank"}
 
-Para hacer las cosas interesantes voy a utilizar una imagen de *SQL Server* basada en *Ubuntu*, pueden usar *Windows* si lo desean pero es una buena excusa para poder jugar con la versión de *Linux* de *SQL Server*, *Microsoft* incluso provee una [guía detallada](https://docs.microsoft.com/en-us/sql/Linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash) para poder crear un contenedor basado en la imagen de Ubuntu
+Para hacer las cosas interesantes voy a utilizar una imagen de *SQL Server* basada en *Ubuntu*, pueden usar *Windows* si lo desean pero es una buena excusa para poder jugar con la versión de *Linux* de *SQL Server*, *Microsoft* incluso provee una [guía detallada](https://docs.microsoft.com/en-us/sql/Linux/quickstart-install-connect-docker?view=sql-server-ver15&pivots=cs1-bash){:target="_blank"} para poder crear un contenedor basado en la imagen de Ubuntu
 
 Deben tener en cuenta que las imágenes tienen un ciclo de vida y se actualizan constantemente, la que yo utilicé al escribir este artículo no necesariamente es la última al momento de leerlo, una vez hecha esa aclaración, yo utilicé el siguiente comando para crear mi servidor local:
 ```
