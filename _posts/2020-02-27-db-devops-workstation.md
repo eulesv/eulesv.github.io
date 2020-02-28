@@ -64,7 +64,7 @@ Si desean saber cuáles son las extensiones que utilicé para implementar esta g
 | DotJoshJohnson.xml  | Formato de archivos *XML*  |
 | eamodio.gitlens  | Características adicionales de *Git* dentro de *code*  |
 | formulahendry.dotnet-test-explorer  | Interfaz para administración y ejecución de pruebas unitarias  |
-| k--kato.docomment  | Generación de comentarios de documentación en *c#*  |
+| {::nomarkdown}k--kato.docomment{:/}  | Generación de comentarios de documentación en *c#*  |
 | ms-azuretools.vscode-docker  | Administración de imágenes y contenedores  |
 | ms-mssql.mssql  | Integración con *Microsoft SQL Server*  |
 | ms-vscode.csharp  | Soporte para el lenguaje *c#*  |
