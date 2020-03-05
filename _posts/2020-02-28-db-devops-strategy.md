@@ -28,79 +28,88 @@ De una manera muy simplificada, lo anterior puede explicarse en el siguiente dia
 
 Si bien es posible hacer una revisión exhaustiva de la estructura de la base de datos para identificar la versión actual (lo cual nos acercaría a un proceso idempotente), yo voy a valerme de un artificio más simple. En esta estrategia **la versión actual será mantenida como metadatos que identificarán de forma única el último cambio aplicado**, el repositorio de estos metadatos puede ser elegido libremente, una opción obvia sería almacenarlo en una tabla dentro de la base de datos; sin embargo, como la implementación de ejemplo está basada en *Microsoft SQL Server* voy a utilizar una característica nativa para al almacenamiento de metadatos, las propiedades extendidas. La idea es utilizar un [identificador único universal](https://es.wikipedia.org/wiki/Identificador_%C3%BAnico_universal){:target="_blank"} almacenado en una propiedad extendida que será actualizado (ya sea con una versión nueva o con una inmediata anterior) en cada cambio enviado a la base de datos. 
 
-Para implementar esta tarea no necesitamos más que un par de procedimientos almacenados que estratégicamente colocaremos dentro de un esquema llamado *cicd*
+Para implementar esta tarea no necesitamos más que unos pocos procedimientos almacenados que estratégicamente colocaremos dentro de un esquema llamado *cicd*
 
 ```sql
 CREATE SCHEMA cicd
 GO
 
-CREATE PROCEDURE cicd.SetCurrentVersion
-    @id UNIQUEIDENTIFIER
+CREATE PROCEDURE cicd.SetProperty
+    @n NVARCHAR(128),
+    @v NVARCHAR(128)
 AS
     DECLARE @current NVARCHAR(128)
-    SELECT @current = [name] FROM fn_listextendedproperty('CICD-VERSION', NULL, NULL, NULL, NULL, NULL, NULL)
+    SELECT @current = [name] FROM fn_listextendedproperty(@n, NULL, NULL, NULL, NULL, NULL, NULL)
     IF(@current IS NULL)
-        EXEC sp_addextendedproperty @name = N'CICD-VERSION', @value = @id
+        EXEC sp_addextendedproperty @name = @n, @value = @v
     ELSE
-         EXEC sp_updateextendedproperty @name = N'CICD-VERSION', @value = @id
+         EXEC sp_updateextendedproperty @name = @n, @value = @v
+GO
+
+CREATE PROCEDURE cicd.GetProperty
+    @n NVARCHAR(128),
+    @v NVARCHAR(128) OUTPUT
+AS
+    SELECT @v = CAST([value] AS VARCHAR(128)) FROM fn_listextendedproperty(@n, NULL, NULL, NULL, NULL, NULL, NULL)
+    IF(@v IS NULL)
+        RETURN 1
+    ELSE
+        RETURN 0
+GO
+
+CREATE PROCEDURE cicd.SetVersion
+    @id UNIQUEIDENTIFIER
+AS
+    EXEC cicd.SetProperty 'CICD-VERSION', @id
 GO
 
 CREATE PROCEDURE cicd.CheckVersion
     @id UNIQUEIDENTIFIER
 AS
     DECLARE @current NVARCHAR(128)
-    SELECT @current = CAST([value] AS VARCHAR(128)) FROM fn_listextendedproperty('CICD-VERSION', NULL, NULL, NULL, NULL, NULL, NULL)
-    IF(@current IS NULL)
+    DECLARE @ret INT
+    EXEC @ret = cicd.GetProperty'CICD-VERSION', @current OUTPUT
+    IF(@ret <> 0)
         RAISERROR('Not a versioned database', 18, 0)
     IF(@current =  @id)
-        RETURN 1
-    ELSE
         RETURN 0
+    ELSE
+        RAISERROR('Unknown version', 18, 0)
 GO
 ```
 Una vez que estos procedimientos han sido agregados a mi base de datos puedo marcarla con una "versión inicial" por ejemplo:
 
 ```sql
-EXEC cicd.SetCurrentVersion '00000000-0000-0000-0000-000000000000'
+EXEC cicd.Set Version '00000000-0000-0000-0000-000000000000'
 ```
 
 Siguiendo mi plan, cada vez que requiera hacer un cambio antes de empezar debo primero verificar que la base de datos contiene la versión esperada y después de generar mis cambios debo indicar que la base de datos se encuentra en una nueva versión:
 
 ```sql
-DECLARE @check BIT
--- Current Version
-EXEC @check = cicd.CheckVersion '00000000-0000-0000-0000-000000000000'
-IF(@check <> 1)
-BEGIN
-    RAISERROR('Unknown version', 18, 0)
+EXEC cicd.CheckVersion '00000000-0000-0000-0000-000000000000'
+IF @@ERROR <> 0
     SET NOEXEC ON
-END
 GO
 
 -- CODE
 
 -- Version AFTER changes
-EXEC cicd.SetCurrentVersion '11111111-1111-1111-1111-111111111111'
+EXEC cicd.SetVersion '11111111-1111-1111-1111-111111111111'
 
 SET NOEXEC OFF
 ```
 El proceso de reversión es similar, debo primero verificar que estoy revirtiendo la versión hecha por un cambio específico y luego debo regresar mi base de datos a la versión original.
 
 ```sql
-DECLARE @check BIT
--- Version AFTER changes
-EXEC @check = cicd.CheckVersion '11111111-1111-1111-1111-111111111111'
-IF(@check <> 1)
-BEGIN
-    RAISERROR('Unknown version', 18, 0)
+EXEC cicd.CheckVersion '11111111-1111-1111-1111-111111111111'
+IF @@ERROR <> 0
     SET NOEXEC ON
-END
 GO
 
 -- CODE
 
 -- Return to MODEL Version 
-EXEC cicd.SetCurrentVersion '00000000-0000-0000-0000-000000000000'
+EXEC cicd.SetVersion '00000000-0000-0000-0000-000000000000'
 
 SET NOEXEC OFF
 
@@ -144,7 +153,7 @@ Quizás se estén preguntando: Por qué no incluí a *model* dentro de los archi
 
 ```sql
 --##!
-EXEC cicd.SetCurrentVersion '00000000-0000-0000-0000-000000000000'
+EXEC cicd.SetVersion '00000000-0000-0000-0000-000000000000'
 ```
 
 Una vez que mis marcadores están listos puedo simplificar mi esquema escribiendo mis cambios dentro de los marcadores y puedo utilizar una herramienta para que haga todo el proceso de copiado y actualización.
@@ -152,14 +161,9 @@ Una vez que mis marcadores están listos puedo simplificar mi esquema escribiend
 A continuación, revisaremos un ejemplo completo para agregar una tabla de NorthwindTraders a nuestra base de datos. El primer paso es agregar las instrucciones `ddl` dentro de los marcadores de *apply*, que en este caso se encuentran vacíos por ser nuestra primera versión:
 
 ```sql
-DECLARE @check BIT
--- Current Version
-EXEC @check = cicd.CheckVersion '00000000-0000-0000-0000-000000000000'
-IF(@check <> 1)
-BEGIN
-    RAISERROR('Unknown version', 18, 0)
+EXEC cicd.CheckVersion '00000000-0000-0000-0000-000000000000'
+IF @@ERROR <> 0
     SET NOEXEC ON
-END
 GO
 
 --********************
@@ -186,7 +190,7 @@ GO
 --********************
 
 -- Version AFTER changes
-EXEC cicd.SetCurrentVersion '11111111-1111-1111-1111-111111111111'
+EXEC cicd.SetVersion '11111111-1111-1111-1111-111111111111'
 
 SET NOEXEC OFF
 ```
@@ -194,14 +198,9 @@ SET NOEXEC OFF
 Agregamos las sentencias correspondientes en los marcadores de *undo* que también se encuentran vacíos por la misma razón anterior:
 
 ```sql
-DECLARE @check BIT
--- Version AFTER changes
-EXEC @check = cicd.CheckVersion '11111111-1111-1111-1111-111111111111'
-IF(@check <> 1)
-BEGIN
-    RAISERROR('Unknown version', 18, 0)
+EXEC cicd.CheckVersion '11111111-1111-1111-1111-111111111111'
+IF @@ERROR <> 0
     SET NOEXEC ON
-END
 GO
 
 --********************
@@ -217,7 +216,7 @@ DROP TABLE [dbo].[Categories]
 --********************
 
 -- Return to MODEL Version 
-EXEC cicd.SetCurrentVersion '00000000-0000-0000-0000-000000000000'
+EXEC cicd.SetVersion '00000000-0000-0000-0000-000000000000'
 
 SET NOEXEC OFF
 ```

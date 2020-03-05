@@ -38,7 +38,7 @@ Para crear el repositorio local de *Git*, vamos a hacer referencia al repositori
 O simplemente puede copiarse la dirección y clonar el repo desde la línea de comandos:
 
 ```
-git clone https://robep@dev.azure.com/robep/DB%20DevOps%20E2E/_git/DB%20DevOps%20E2E
+git clone https://la_direccion_de_tu_repo
 ```
 
 **Entorno de Desarrollo**
@@ -111,8 +111,8 @@ Para hacer las cosas interesantes voy a utilizar una imagen de *SQL Server* basa
 Deben tener en cuenta que las imágenes tienen un ciclo de vida y se actualizan constantemente, la que yo utilicé al escribir este artículo no necesariamente es la última al momento de leerlo, una vez hecha esa aclaración, yo utilicé el siguiente comando para crear mi servidor local:
 ```
 docker pull mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
-docker tag mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04 mssql-Linux
-docker run -e "ACCEPT_EULA=Y" -e 'MSSQL_PID=Express' -e "SA_PASSWORD=P@ssw0rd" -p 1433:1433 --name sql-dev -d mssql-Linux
+docker tag mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04 mssql-linux
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_PID=Express" -e "SA_PASSWORD=P@ssw0rd" -p 1433:1433 --name sql-dev -d mssql-linux
 ```
 
 El ``tag`` es una conveniencia, facilitará la visualización de mis contenedores dentro de *code*. La magia ocurre dentro de ``docker run`` donde las 3 variables necesarias son:

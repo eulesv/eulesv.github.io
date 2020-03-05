@@ -44,7 +44,8 @@ dotnet sln add .\Tests
 Esta estructura básica nos permitirá agregar pruebas unitarias que soporten cada uno de los cambios que estamos agregando en la evolución de nuestra base de datos; y ya que esta demostración está basada en *SQL Server*, este es el momento apropiado para agregar una referencia al cliente de ado.net que debo utilizar.
 
 ```
-dotnet add package System.Data.SqlClient --version 4.8.1
+cd .\Tests
+dotnet add package System.Data.SqlClient
 ```
 
 Ahora debo implementar mi prueba unitaria; por defecto la plantilla de proyecto `mstest` agrega un archivo *UnitTest.cs*, el cual renombraré como *Categories.cs*, el objetivo es validar la tabla que agregamos en el artículo anterior; la verificación podría validar muchos aspectos, adición de registros con los datos de acuerdo a las especificaciones de negocio, eliminación de datos de acuerdo a los filtros esperados, etc., para ilustración crearé una validación del esquema de acuerdo a las columnas, tipos de datos y longitud de tipos de datos esperadas p0r medio de un *esquema xsd* como el siguiente:
@@ -80,7 +81,6 @@ foreach (DataColumn c0 in t0.Columns)
     {
         DataColumn c1 = t1.Columns[c0.ColumnName];
         Assert.AreEqual(c0.DataType, c1.DataType);
-        Assert.AreEqual(c0.MaxLength, c1.MaxLength);
     }
     else
     {
@@ -99,7 +99,7 @@ Si desean hacerlo desde la línea de comando pueden simplemente ejecutar
 dotnet test
 ```
 
-Si se preguntan cómo creé el *esquema xsd*, la respuesta es simple, cuando defino el objeto por primera vez, al menos en teoría, lo estoy haciendo de acuerdo a la especificación de la necesidad de negocio, por lo tanto una vez que pruebo el script de creación en mi servidor de pruebas, puedo obtener *esquema xsd* por medio del método [WriteXmlSchema](https://docs.microsoft.com/en-us/dotnet/api/system.data.dataset.writexmlschema?view=netframework-4.8){:target="_blank"} del objeto `DataSet`. puede no parecer correcto, pero ese es precisamente el objetivo de la prueba unitaria asegurarnos que desde la perspectiva de la aplicación el esquema sea el mismo, incluso si más adelante agregáramos una nueva columna (como veremos en el artículo de pruebas en producción) mi aplicación sólo está preparada para manejar estas columnas, por lo tanto, mi consulta siempre debería respetar este esquema.
+Si se preguntan cómo creé el *esquema xsd*, la respuesta es simple, cuando defino el objeto por primera vez, al menos en teoría, lo estoy haciendo de acuerdo a la especificación de la necesidad de negocio, por lo tanto una vez que pruebo el script de creación en mi servidor de desarrollo, puedo obtener *esquema xsd* por medio del método [WriteXmlSchema](https://docs.microsoft.com/en-us/dotnet/api/system.data.dataset.writexmlschema?view=netframework-4.8){:target="_blank"} del objeto `DataSet`. puede no parecer correcto, pero ese es precisamente el objetivo de la prueba unitaria asegurarnos que desde la perspectiva de la aplicación el esquema sea el mismo, incluso si más adelante agregáramos una nueva columna (como veremos en el artículo de pruebas en producción) mi aplicación sólo está preparada para manejar estas columnas, por lo tanto, mi consulta siempre debería respetar este esquema.
 
 Como pueden observar, una vez que mantenemos claro que el objetivo es validar la definición de la entidad de negocio y no el código de la consulta, nuestras pruebas toman una relevancia muy importante y es posible implementarlas en cualquiera que sea la tecnología de nuestra elección. 
 
